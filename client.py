@@ -32,19 +32,14 @@ if __name__ == "__main__":
 
     parser = optparse.OptionParser(version=settings.VERSION)
     parser.add_option('-l', '--list-servers', dest='listservers', default=False, action="store_true", help='list servers: -l')
-    parser.add_option('-r', '--list-controllers', dest='listcontrollers', default=False, action="store_true", help='list controllers: -r')
     parser.add_option('-s', '--server', dest='server', nargs=1, default='localhost', help='specify server: -s <server>')
     parser.add_option('-m', '--mode', dest='mode', nargs=1, default='fg', help='specify execution mode: -m <fg|bg>')
-    parser.add_option('-c', '--controller', dest='controller', nargs=1, default='p', help='specify controller: -c <controller>')
     parser.add_option('-p', '--program', dest='program', nargs=1, default='check.py', help='specify program to be executed: -c <program>')
+    parser.add_option('-a', '--arguments', dest='arguments', nargs=1, default=False, help='specify program arguments: -a <arg1,arg2,...>')
     (options, args) = parser.parse_args()
 
     if options.listservers:
         for key, value in settings.SERVERS.items():
-            print('{0} = {1}'.format(key, value))
-        sys.exit(0)
-    elif options.listcontrollers:
-        for key, value in settings.CONTROLLERS.items():
             print('{0} = {1}'.format(key, value))
         sys.exit(0)
     else:
@@ -69,23 +64,13 @@ if __name__ == "__main__":
                 sys.exit(1)
         else:
             url = url + '/fg'
-        if options.controller:
-            if options.controller in settings.CONTROLLERS:
-                url = url + '/' + options.controller
-            else:
-                print('ERROR: There is no controller "{0}".'.format(options.controller))
-                sys.exit(1)
-        else:
-            if 'p' in settings.CONTROLLERS:
-                url = url + '/p'
-            else:
-                print('ERROR: There is no controller "p".')
-                sys.exit(1)
         if options.program:
             url = url + '/' + options.program
         else:
             print('ERROR: You need to specify a program to be executed.')
             sys.exit(1)
+        if options.arguments:
+            url = url + '?' + options.arguments.replace(',', '&')
 
         r = requests.get(url)
         print(r.text)

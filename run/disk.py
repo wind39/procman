@@ -23,7 +23,11 @@ SOFTWARE.
 '''
 
 
-from utils import syscall, syscall_bg
+import settings
+from utils import *
 
 out = syscall('df -hP')
-print('\n'.join(out))
+msg = '\n'.join(out)
+if settings.SLACK['enabled']:
+    notify('Disk usage on server {0}:\n```\n{1}\n```'.format(settings.ADDRESS, msg))
+print(msg)

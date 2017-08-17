@@ -23,27 +23,8 @@ SOFTWARE.
 '''
 
 
-import subprocess
-import settings
+import sys
+from utils import syscall, syscall_bg
 
-if settings.SLACK['enabled']:
-    from slackclient import SlackClient
-
-def syscall(command):
-	p = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
-	return p.stdout.decode('utf-8').split('\n')[:-1]
-
-def syscall_bg(command):
-    subprocess.Popen(command, shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
-    return None
-
-def notify(p_text):
-    sc = SlackClient(settings.SLACK['token'])
-    sc.api_call(
-      'chat.postMessage',
-      channel=settings.SLACK['channel'],
-      text=p_text,
-      as_user='false',
-      icon_url=settings.SLACK['bot_imageurl'],
-      username=settings.SLACK['bot_name']
-    )
+out = syscall('ln -s ../run/{0} cron/{1}_{0}'.format(sys.argv[1], sys.argv[2]))
+print('\n'.join(out))

@@ -25,7 +25,7 @@ SOFTWARE.
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import settings
-from utils import syscall, syscall_bg
+from utils import *
 
 class Request:
     def __init__(self, p_url):
@@ -33,20 +33,18 @@ class Request:
         self.v_hook = tmp[0].strip('/')
         tmp2 = self.v_hook.split('/')
         self.v_mode = tmp2[0]
-        self.v_controller = tmp2[1]
-        self.v_program = settings.CONTROLLERS[self.v_controller]
-        self.v_script = '/'.join(tmp2[2:])
+        self.v_script = '/'.join(tmp2[1:])
         if len(tmp) > 1:
             self.v_parameters = tmp[1].split('&')
         else:
             self.v_parameters = []
-        self.v_command = self.v_program + ' run/' + self.v_script + ' ' + ' '.join(self.v_parameters)
+        self.v_command = 'python run/' + self.v_script + ' ' + ' '.join(self.v_parameters)
         self.v_filename = 'a.out'
     def execute(self):
         if self.v_mode == 'fg':
             out = syscall(self.v_command)
         else:
-            out = syscall_bg(self.v_command)
+            out = syscall_bg('{0} > /dev/null'.format(self.v_command))
         if out:
             return '\n'.join(out)
         else:

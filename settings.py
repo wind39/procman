@@ -26,11 +26,14 @@ SOFTWARE.
 VERSION = '0.0.1'
 ADDRESS = '127.0.0.1'
 PORT = 8080
-CONTROLLERS = {
-    'p': 'python',
-    'm': 'mono',
-    'b': 'bash'
-}
+CRONSNAP = 30
 SERVERS = {
     'localhost': '127.0.0.1:8080'
+}
+SLACK = {
+    'enabled': False,
+    'token': 'slack-token',
+    'channel': '#channel',
+    'bot_imageurl': 'http://www.website.com/favicon.png',
+    'bot_name': 'procman'
 }
