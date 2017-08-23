@@ -34,7 +34,7 @@ if __name__ == "__main__":
     parser.add_option('-l', '--list-servers', dest='listservers', default=False, action="store_true", help='list servers: -l')
     parser.add_option('-s', '--server', dest='server', nargs=1, default='localhost', help='specify server: -s <server>')
     parser.add_option('-m', '--mode', dest='mode', nargs=1, default='fg', help='specify execution mode: -m <fg|bg>')
-    parser.add_option('-p', '--program', dest='program', nargs=1, default='check.py', help='specify program to be executed: -c <program>')
+    parser.add_option('-p', '--program', dest='program', nargs=1, default='check.py', help='specify program to be executed: -p <program>')
     parser.add_option('-a', '--arguments', dest='arguments', nargs=1, default=False, help='specify program arguments: -a <arg1,arg2,...>')
     (options, args) = parser.parse_args()
 

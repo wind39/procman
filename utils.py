@@ -23,6 +23,9 @@ SOFTWARE.
 '''
 
 
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import subprocess
 import settings
 
@@ -47,3 +50,22 @@ def notify(p_text):
       icon_url=settings.SLACK['bot_imageurl'],
       username=settings.SLACK['bot_name']
     )
+
+def sendmail(p_from, p_to, p_subject, p_body, p_is_html):
+    msg = MIMEMultipart()
+    msg['From'] = p_from
+    msg['To'] = ','.join(p_to)
+    msg['Subject'] = p_subject
+    if (p_is_html):
+        msg.attach(MIMEText(p_body, 'html', 'utf-8'))
+    else:
+        msg.attach(MIMEText(p_body, 'plain', 'utf-8'))
+    try:
+        server = smtplib.SMTP(settings.MAIL['host'], settings.MAIL['port'])
+        server.starttls()
+        server.login(settings.MAIL['user'], settings.MAIL['password'])
+        server.sendmail(p_from, p_to, msg.as_string())
+    except Exception as exc:
+        print(str(exc))
+    finally:
+        server.quit()

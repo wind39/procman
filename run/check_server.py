@@ -23,25 +23,15 @@ SOFTWARE.
 '''
 
 
-VERSION = '0.0.1'
-ADDRESS = '127.0.0.1'
-PORT = 8080
-CRONSNAP = 30
-SERVERS = {
-    'localhost': '127.0.0.1:8080'
-}
-SLACK = {
-    'enabled': False,
-    'token': 'slack-token',
-    'channel': '#channel',
-    'bot_imageurl': 'http://www.website.com/favicon.png',
-    'bot_name': 'procman'
-}
-MAIL = {
-    'enabled': False,
-    'host': 'smtp.server.com',
-    'port': 587,
-    'user': 'username',
-    'password': 'p@$$w04d',
-    'from': 'username@smtp.server.com'
-}
+import settings
+from utils import *
+import requests
+import sys
+
+try:
+    r = requests.get('http://{0}/fg/hello.py'.format(settings.SERVERS[sys.argv[1]]), timeout=30)
+except:
+    msg = 'Server {0} is offline.'.format(settings.SERVERS[sys.argv[1]])
+    if settings.SLACK['enabled']:
+        notify(msg)
+    print(msg)
