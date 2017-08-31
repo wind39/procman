@@ -33,11 +33,11 @@ if settings.SLACK['enabled']:
     from slackclient import SlackClient
 
 def syscall(command):
-	p = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
+	p = subprocess.run(command, shell=True, executable='/bin/bash', stdout=subprocess.PIPE)
 	return p.stdout.decode('utf-8').split('\n')[:-1]
 
 def syscall_bg(command):
-    subprocess.Popen(command, shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
+    subprocess.Popen(command, shell=True, executable='/bin/bash', stdin=None, stdout=None, stderr=None, close_fds=True)
     return None
 
 def notify(p_text):
