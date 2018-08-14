@@ -1,7 +1,8 @@
 '''
 MIT License
 
-Copyright (c) 2017 William Ivanski
+Copyright (c) 2017-2018 William Ivanski
+Copyright (c) 2018 Israel Barth Rubio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +25,35 @@ SOFTWARE.
 
 
 import sys
-from utils import syscall, syscall_bg
+import os
 
-out = syscall('ln -s ../run/{0} cron/{1}_{0}'.format(sys.argv[1], sys.argv[2]))
-print('\n'.join(out))
+v_script = sys.argv[1]
+
+if not os.path.isfile(os.path.join('run', '{0}.py'.format(v_script))):
+    print('File {0}.py not found.'.format(v_script))
+    return
+
+v_minute = sys.argv[2]
+v_hour = sys.argv[3]
+v_day_of_week = sys.argv[4]
+v_day_of_month = sys.argv[5]
+v_month = sys.argv[6]
+
+v_file_content = '''[Schedule]
+Exec={0}.py
+Minute={1}
+Hour={2}
+DayOfWeek={3}
+DayOfMonth={4}
+Month={5}
+'''.format(
+    v_script,
+    v_minute,
+    v_hour,
+    v_day_of_week,
+    v_day_of_month,
+    v_month
+)
+
+with os.open(os.path.join('..', 'cron', '{0}.conf'.format(v_script)), 'w') as v_file:
+    v_file.write(v_file_content)

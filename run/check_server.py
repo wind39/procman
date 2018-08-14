@@ -1,7 +1,8 @@
 '''
 MIT License
 
-Copyright (c) 2017 William Ivanski
+Copyright (c) 2017-2018 William Ivanski
+Copyright (c) 2018 Israel Barth Rubio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,9 +30,11 @@ import requests
 import sys
 
 try:
-    r = requests.get('http://{0}/fg/hello.py'.format(settings.SERVERS[sys.argv[1]]), timeout=30)
+    url = 'https://' if settings.SERVERS[sys.argv[1]]['ssl'] else 'http://'
+    url = url + settings.SERVERS[sys.argv[1]]['address']
+    r = requests.get('{0}/fg/hello.py'.format(url), timeout=30)
 except:
-    msg = 'Server {0} is offline.'.format(settings.SERVERS[sys.argv[1]])
+    msg = 'Server {0} is offline.'.format(settings.SERVERS[sys.argv[1]]['address'])
     if settings.SLACK['enabled']:
         notify(msg)
     print(msg)
