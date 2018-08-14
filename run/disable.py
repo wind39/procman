@@ -31,6 +31,6 @@ v_file_name = os.path.join('cron', '{0}.conf'.format(sys.argv[1]))
 
 if not os.path.isfile(v_file_name):
     print('File {0} not found'.format(v_file_name))
-    return
+    sys.exit(1)
 
 os.rename(v_file_name, '{0}.disabled'.format(v_file_name))

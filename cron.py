@@ -144,7 +144,7 @@ class Schedule:
 
         print(str(self))
 
-        syscall_bg('python3 run/{0} > /dev/null'.format(self.exec))
+        syscall_bg('python run/{0} > /dev/null'.format(self.exec))
 
 
 def RunSchedule():
@@ -172,8 +172,6 @@ def RunSchedule():
 
 
 if __name__ == "__main__":
-    os.chdir(settings.ROOT_FOLDER)
-
     try:
         notify('procman {0} cron running at {1}...'.format(settings.VERSION, settings.ADDRESS))
 

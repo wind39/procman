@@ -49,7 +49,7 @@ MAIL = {
     'from': 'username@smtp.server.com'
 }
 SSL = {
-    'enabled': False
+    'enabled': False,
     'CERTIFICATE': '/etc/ssl/certs/mycert.crt',
     'KEY': '/etc/ssl/private/mykey.key'
 }

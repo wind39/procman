@@ -40,11 +40,11 @@ class Request:
         self.script = '/'.join(v_tmp2[1:])
 
         if len(v_tmp) > 1:
-            self.parameters = v_tmp[1].split('&')
+            self.parameters = v_tmp[1].replace('*', '\*').split('&')
         else:
             self.parameters = []
 
-        self.command = 'python3 run/' + self.script + ' ' + ' '.join(self.parameters)
+        self.command = 'python run/' + self.script + ' ' + ' '.join(self.parameters)
         self.fileName = 'a.out'
 
     def execute(self):

@@ -45,15 +45,16 @@ def syscall_bg(command):
     return None
 
 def notify(p_text):
-    sc = SlackClient(settings.SLACK['token'])
-    sc.api_call(
-      'chat.postMessage',
-      channel=settings.SLACK['channel'],
-      text=p_text,
-      as_user='false',
-      icon_url=settings.SLACK['bot_imageurl'],
-      username=settings.SLACK['bot_name']
-    )
+    if settings.SLACK['enabled']:
+        sc = SlackClient(settings.SLACK['token'])
+        sc.api_call(
+          'chat.postMessage',
+          channel=settings.SLACK['channel'],
+          text=p_text,
+          as_user='false',
+          icon_url=settings.SLACK['bot_imageurl'],
+          username=settings.SLACK['bot_name']
+        )
 
 def sendmail(p_from, p_to, p_subject, p_body, p_is_html):
     msg = MIMEMultipart()

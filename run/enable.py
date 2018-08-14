@@ -31,7 +31,7 @@ v_script = sys.argv[1]
 
 if not os.path.isfile(os.path.join('run', '{0}.py'.format(v_script))):
     print('File {0}.py not found.'.format(v_script))
-    return
+    sys.exit(1)
 
 v_minute = sys.argv[2]
 v_hour = sys.argv[3]
@@ -55,5 +55,5 @@ Month={5}
     v_month
 )
 
-with os.open(os.path.join('..', 'cron', '{0}.conf'.format(v_script)), 'w') as v_file:
+with open(os.path.join('cron', '{0}.conf'.format(v_script)), 'w') as v_file:
     v_file.write(v_file_content)
