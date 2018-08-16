@@ -1,7 +1,8 @@
 '''
 MIT License
 
-Copyright (c) 2017 William Ivanski
+Copyright (c) 2017-2018 William Ivanski
+Copyright (c) 2018 Israel Barth Rubio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +25,12 @@ SOFTWARE.
 
 
 import sys
-from utils import syscall, syscall_bg
+import os
 
-out = syscall('rm -f cron/*_{0}'.format(sys.argv[1]))
-print('\n'.join(out))
+v_file_name = os.path.join('cron', '{0}.conf'.format(sys.argv[1]))
+
+if not os.path.isfile(v_file_name):
+    print('File {0} not found'.format(v_file_name))
+    sys.exit(1)
+
+os.rename(v_file_name, '{0}.disabled'.format(v_file_name))

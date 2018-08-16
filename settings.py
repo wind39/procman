@@ -1,7 +1,8 @@
 '''
 MIT License
 
-Copyright (c) 2017 William Ivanski
+Copyright (c) 2017-2018 William Ivanski
+Copyright (c) 2018 Israel Barth Rubio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +27,11 @@ SOFTWARE.
 VERSION = '0.0.1'
 ADDRESS = '127.0.0.1'
 PORT = 8080
-CRONSNAP = 30
 SERVERS = {
-    'localhost': '127.0.0.1:8080'
+    'localhost': {
+        'address': '127.0.0.1:8080',
+        'ssl': False
+    }
 }
 SLACK = {
     'enabled': False,
@@ -44,4 +47,9 @@ MAIL = {
     'user': 'username',
     'password': 'p@$$w04d',
     'from': 'username@smtp.server.com'
+}
+SSL = {
+    'enabled': False,
+    'CERTIFICATE': '/etc/ssl/certs/mycert.crt',
+    'KEY': '/etc/ssl/private/mykey.key'
 }

@@ -1,7 +1,8 @@
 '''
 MIT License
 
-Copyright (c) 2017 William Ivanski
+Copyright (c) 2017-2018 William Ivanski
+Copyright (c) 2018 Israel Barth Rubio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +26,13 @@ SOFTWARE.
 import settings
 from utils import *
 
-out = syscall('ps aux | grep "python listener.py" | grep -v grep | tr -s " " | cut -d " " -f 2')
+out = syscall('ps aux | grep "python listener.py" | grep -v grep | tr -s " " | cut -d " " -f 2')['stdout']
 if len(out) > 0:
     msg1 = 'procman {0} listener is running on {1}:{2} with PID {3}'.format(settings.VERSION, settings.ADDRESS, settings.PORT, out[0])
 else:
     msg1 = 'procman {0} listener is not running on {1}:{2}'.format(settings.VERSION, settings.ADDRESS, settings.PORT)
 
-out = syscall('ps aux | grep "python cron.py" | grep -v grep | tr -s " " | cut -d " " -f 2')
+out = syscall('ps aux | grep "python cron.py" | grep -v grep | tr -s " " | cut -d " " -f 2')['stdout']
 if len(out) > 0:
     msg2 = 'procman {0} cron is running on {1}:{2} with PID {3}'.format(settings.VERSION, settings.ADDRESS, settings.PORT, out[0])
 else:

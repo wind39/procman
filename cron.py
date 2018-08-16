@@ -1,7 +1,8 @@
 '''
 MIT License
 
-Copyright (c) 2017 William Ivanski
+Copyright (c) 2017-2018 William Ivanski
+Copyright (c) 2018 Israel Barth Rubio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,55 +24,167 @@ SOFTWARE.
 '''
 
 
-from datetime import datetime
+import os
+import datetime
 import time
+from configparser import ConfigParser
+import traceback
 import settings
-from utils import *
+from utils import syscall_bg, notify
 
-def get_schedule():
-    out = syscall('ls -1 cron/')
-    out.remove('settings.py')
-    out.remove('utils.py')
-    s = {}
-    for p in out:
-        t = p.split('_')
-        s[t[1]] = int(t[0])
-    return s
 
-def update_schedule(s1, s2):
-    s = {}
-    for k1, v1 in s1.items():
-        if k1 in s2:
-            if s1[k1] <= 0:
-                s[k1] = s2[k1]
+class Schedule:
+    def __init__(self, p_exec='', p_minute='0', p_hour='*', p_dayOfWeek='*', p_dayOfMonth='*', p_month='*'):
+        self.exec = p_exec.replace(' ', '')
+        self.minute = p_minute.replace(' ', '')
+        self.hour = p_hour.replace(' ', '')
+        self.dayOfWeek = p_dayOfWeek.replace(' ', '')
+        self.dayOfMonth = p_dayOfMonth.replace(' ', '')
+        self.month = p_month.replace(' ', '')
+
+    def __str__(self):
+        return '\n'.join([
+            'Exec={0}'.format(self.exec),
+            'Minute={0}'.format(self.minute),
+            'Hour={0}'.format(self.hour),
+            'DayOfWeek={0}'.format(self.dayOfWeek),
+            'DayOfMonth={0}'.format(self.dayOfMonth),
+            'Month={0}'.format(self.month)
+        ])
+
+    def parse(self, p_attr='Minute'):
+        v_attr = None
+        v_defaultStart = 0
+        v_defaultEnd = -1
+
+        if p_attr == 'Minute':
+            v_attr = self.minute
+            v_defaultStart = 0
+            v_defaultEnd = 59
+        elif p_attr == 'Hour':
+            v_attr = self.hour
+            v_defaultStart = 0
+            v_defaultEnd = 23
+        elif p_attr == 'DayOfWeek':
+            v_attr = self.dayOfWeek
+            v_defaultStart = 1
+            v_defaultEnd = 7
+        elif p_attr == 'DayOfMonth':
+            v_attr = self.dayOfMonth
+            v_defaultStart = 1
+            v_defaultEnd = 31
+        elif p_attr == 'Month':
+            v_attr = self.month
+            v_defaultStart = 1
+            v_defaultEnd = 12
+        else:
+            return []
+
+        v_parseList = []
+
+        for v_instance in v_attr.split(','):
+            v_instanceParseList = []
+            v_step = None
+            v_start = None
+            v_end = None
+
+            if '*' in v_instance:
+                v_step = 1
+
+                if v_instance != '*':
+                    if '/' in v_instance:
+                        v_step = int(v_instance.split('/')[1])
+            elif '-' in v_instance:
+                v_step = 1
+
+                if '/' in v_instance:
+                    v_tokens = v_instance.split('/')
+                    v_step = int(v_tokens[1])
+
+                    v_tokens2 = v_tokens[0].split('-')
+                    v_start = int(v_tokens2[0])
+                    v_end = int(v_tokens2[1])
+                else:
+                    v_tokens = v_instance.split('-')
+                    v_start = int(v_tokens[0])
+                    v_end = int(v_tokens[1])
             else:
-                s[k1] = s1[k1]
-    for k2, v2 in s2.items():
-        if k2 not in s:
-            print('{0}: running {1}'.format(datetime.now(), k2))
-            syscall_bg('python run/{0} > /dev/null'.format(k2))
-            s[k2] = s2[k2]
-    return s
+                v_step = 1
+                v_start = int(v_instance)
+                v_end = int(v_instance)
 
-def run_schedule(s):
-    for key, value in s.items():
-        s[key] = s[key] - settings.CRONSNAP
-        if s[key] <= 0:
-            print('{0}: running {1}'.format(datetime.now(), key))
-            syscall_bg('python run/{0} > /dev/null'.format(key))
-    return s
+            if v_start is None or v_start < v_defaultStart:
+                v_start = v_defaultStart
+
+            if v_end is None or v_end > v_defaultEnd:
+                v_end = v_defaultEnd
+
+            for i in range(v_start, v_end + 1, v_step):
+                v_instanceParseList.append(i)
+
+            v_parseList.extend(v_instanceParseList)
+
+        return list(set(v_parseList))
+
+    def Run(self, p_timeStamp):
+        if p_timeStamp.minute not in self.parse('Minute'):
+            return
+
+        if p_timeStamp.hour not in self.parse('Hour'):
+            return
+
+        if p_timeStamp.isoweekday() not in self.parse('DayOfWeek'):
+            return
+
+        if p_timeStamp.day not in self.parse('DayOfMonth'):
+            return
+
+        if p_timeStamp.month not in self.parse('Month'):
+            return
+
+        print(str(self))
+
+        syscall_bg('python run/{0} > /dev/null'.format(self.exec))
+
+
+def RunSchedule():
+    v_now = datetime.datetime.now()
+
+    print('Running Schedule at {0}'.format(str(v_now)))
+
+    for v_file in os.listdir(os.path.join('.', 'cron')):
+        try:
+            v_config = ConfigParser()
+            v_config.read(os.path.join('.', 'cron', v_file))
+
+            v_schedule = Schedule(
+                v_config.get('Schedule', 'Exec'),
+                v_config.get('Schedule', 'Minute'),
+                v_config.get('Schedule', 'Hour'),
+                v_config.get('Schedule', 'DayOfWeek'),
+                v_config.get('Schedule', 'DayOfMonth'),
+                v_config.get('Schedule', 'Month')
+            )
+
+            v_schedule.Run(v_now)
+        except Exception as exc:
+            notify('Problem occurred in ProcMan Cron at {0}:\n{1}'.format(settings.ADDRESS, traceback.format_exc()))
+
 
 if __name__ == "__main__":
     try:
-        print('procman {0} cron running...'.format(settings.VERSION))
-        s1 = {}
-        while True:
-            s2 = get_schedule()
-            s1 = update_schedule(s1, s2)
-            s1 = run_schedule(s1)
-            print('{0}: current schedule: {1}'.format(datetime.now(), s1))
-            time.sleep(settings.CRONSNAP)
+        notify('procman {0} cron running at {1}...'.format(settings.VERSION, settings.ADDRESS))
 
+        v_start = datetime.datetime.now()
+        v_next = v_start + datetime.timedelta(minutes=1)
+
+        while True:
+            RunSchedule()
+            v_now = datetime.datetime.now()
+            v_sleep = (v_next - v_now).total_seconds()
+            time.sleep(v_sleep)
+            v_next = v_next + datetime.timedelta(minutes=1)
     except KeyboardInterrupt:
-        print('')
-        print('exiting procman cron...')
+        notify('exiting procman {0} cron running at {1}...'.format(settings.VERSION, settings.ADDRESS))
+    except Exception as exc:
+        notify('Problem occurred in ProcMan Cron at {0}:\n{1}'.format(settings.ADDRESS, traceback.format_exc()))

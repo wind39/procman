@@ -1,7 +1,8 @@
 '''
 MIT License
 
-Copyright (c) 2017 William Ivanski
+Copyright (c) 2017-2018 William Ivanski
+Copyright (c) 2018 Israel Barth Rubio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,19 +41,21 @@ if __name__ == "__main__":
 
     if options.listservers:
         for key, value in settings.SERVERS.items():
-            print('{0} = {1}'.format(key, value))
+            print('{0} = {1}'.format(key, value['address']))
         sys.exit(0)
     else:
-        url = 'http://'
+        url = ''
         if options.server:
             if options.server in settings.SERVERS:
-                url = url + settings.SERVERS[options.server]
+                url = 'https://' if settings.SERVERS[options.server]['ssl'] else 'http://'
+                url = url + settings.SERVERS[options.server]['address']
             else:
                 print('ERROR: There is no server "{0}".'.format(options.server))
                 sys.exit(1)
         else:
             if 'localhost' in settings.SERVERS:
-                url = url + settings.SERVERS[options.server]
+                url = 'https://' if settings.SERVERS['localhost']['ssl'] else 'http://'
+                url = url + settings.SERVERS['localhost']['address']
             else:
                 print('ERROR: There is no server "localhost".')
                 sys.exit(1)

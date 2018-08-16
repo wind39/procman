@@ -1,7 +1,8 @@
 '''
 MIT License
 
-Copyright (c) 2017 William Ivanski
+Copyright (c) 2017-2018 William Ivanski
+Copyright (c) 2018 Israel Barth Rubio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,23 +34,27 @@ if settings.SLACK['enabled']:
     from slackclient import SlackClient
 
 def syscall(command):
-	p = subprocess.run(command, shell=True, executable='/bin/bash', stdout=subprocess.PIPE)
-	return p.stdout.decode('utf-8').split('\n')[:-1]
+    p = subprocess.run(command, shell=True, executable='/bin/bash', stdout=subprocess.PIPE)
+    return {
+        'stdout': p.stdout.decode('utf-8').split('\n')[:-1],
+        'code': p.returncode
+    }
 
 def syscall_bg(command):
-    subprocess.Popen(command, shell=True, executable='/bin/bash', stdin=None, stdout=None, stderr=None, close_fds=True)
+    subprocess.Popen(command, shell=True, stdin=None, stdout=None, stderr=None, close_fds=True)
     return None
 
 def notify(p_text):
-    sc = SlackClient(settings.SLACK['token'])
-    sc.api_call(
-      'chat.postMessage',
-      channel=settings.SLACK['channel'],
-      text=p_text,
-      as_user='false',
-      icon_url=settings.SLACK['bot_imageurl'],
-      username=settings.SLACK['bot_name']
-    )
+    if settings.SLACK['enabled']:
+        sc = SlackClient(settings.SLACK['token'])
+        sc.api_call(
+          'chat.postMessage',
+          channel=settings.SLACK['channel'],
+          text=p_text,
+          as_user='false',
+          icon_url=settings.SLACK['bot_imageurl'],
+          username=settings.SLACK['bot_name']
+        )
 
 def sendmail(p_from, p_to, p_subject, p_body, p_is_html):
     msg = MIMEMultipart()

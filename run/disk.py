@@ -1,7 +1,8 @@
 '''
 MIT License
 
-Copyright (c) 2017 William Ivanski
+Copyright (c) 2017-2018 William Ivanski
+Copyright (c) 2018 Israel Barth Rubio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +27,7 @@ SOFTWARE.
 import settings
 from utils import *
 
-out = syscall('df -hP')
+out = syscall('df -hP')['stdout']
 msg = '\n'.join(out)
 if settings.SLACK['enabled']:
     notify('Disk usage on server {0}:\n```\n{1}\n```'.format(settings.ADDRESS, msg))
