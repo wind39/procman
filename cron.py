@@ -35,12 +35,12 @@ from utils import syscall_bg, notify
 
 class Schedule:
     def __init__(self, p_exec='', p_minute='0', p_hour='*', p_dayOfWeek='*', p_dayOfMonth='*', p_month='*'):
-        self.exec = p_exec.replace(' ', '')
-        self.minute = p_minute.replace(' ', '')
-        self.hour = p_hour.replace(' ', '')
-        self.dayOfWeek = p_dayOfWeek.replace(' ', '')
-        self.dayOfMonth = p_dayOfMonth.replace(' ', '')
-        self.month = p_month.replace(' ', '')
+        self.exec = p_exec.strip()
+        self.minute = p_minute.strip()
+        self.hour = p_hour.strip()
+        self.dayOfWeek = p_dayOfWeek.strip()
+        self.dayOfMonth = p_dayOfMonth.strip()
+        self.month = p_month.strip()
 
     def __str__(self):
         return '\n'.join([
