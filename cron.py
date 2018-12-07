@@ -154,19 +154,20 @@ def RunSchedule():
 
     for v_file in os.listdir(os.path.join('.', 'cron')):
         try:
-            v_config = ConfigParser()
-            v_config.read(os.path.join('.', 'cron', v_file))
+            if v_file.endswith('.conf'):
+                v_config = ConfigParser()
+                v_config.read(os.path.join('.', 'cron', v_file))
 
-            v_schedule = Schedule(
-                v_config.get('Schedule', 'Exec'),
-                v_config.get('Schedule', 'Minute'),
-                v_config.get('Schedule', 'Hour'),
-                v_config.get('Schedule', 'DayOfWeek'),
-                v_config.get('Schedule', 'DayOfMonth'),
-                v_config.get('Schedule', 'Month')
-            )
+                v_schedule = Schedule(
+                    v_config.get('Schedule', 'Exec'),
+                    v_config.get('Schedule', 'Minute'),
+                    v_config.get('Schedule', 'Hour'),
+                    v_config.get('Schedule', 'DayOfWeek'),
+                    v_config.get('Schedule', 'DayOfMonth'),
+                    v_config.get('Schedule', 'Month')
+                )
 
-            v_schedule.Run(v_now)
+                v_schedule.Run(v_now)
         except Exception as exc:
             notify('Problem occurred in ProcMan Cron at {0}:\n{1}'.format(settings.ADDRESS, traceback.format_exc()))
 
